@@ -21,9 +21,10 @@ export async function callClaude(
     messages,
   });
 
-  const block = response.content[0];
-  if (block.type !== 'text') {
-    throw new Error(`Claude returned unexpected content type: "${block.type}"`);
+  const textBlock = response.content.find((b) => b.type === 'text');
+  if (!textBlock || textBlock.type !== 'text') {
+    console.error('[callClaude] No text block found. Content:', JSON.stringify(response.content));
+    throw new Error(`Claude returned no text block. Types: ${response.content.map((b) => b.type).join(', ')}`);
   }
-  return block.text;
+  return textBlock.text;
 }
