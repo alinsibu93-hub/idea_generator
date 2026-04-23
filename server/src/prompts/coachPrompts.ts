@@ -229,6 +229,7 @@ export function buildConversationHistory(session: ChatSession): ClaudeMessage[] 
 // ─── Response Parser ──────────────────────────────────────────────────────────
 
 export function parseCoachResponse(raw: string): CoachResponse {
+  console.log('[parseCoachResponse] raw:', raw);
   const match = raw.match(/\{[\s\S]*\}/);
   if (!match) {
     throw new AppError(502, 'Coach returned a response that could not be parsed as JSON');
