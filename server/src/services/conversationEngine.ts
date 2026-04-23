@@ -58,7 +58,7 @@ export async function openSession(idea: IdeaDraft): Promise<ChatSession> {
   // For the opening, session.messages is empty — buildConversationHistory produces
   // only the synthetic opener, which is exactly what we want.
   const raw = await callClaude(systemPrompt, buildConversationHistory(session));
-  const response = parseCoachResponse(raw);
+  const response = parseCoachResponse(raw, 'WELCOME');
 
   return {
     ...session,
@@ -88,7 +88,7 @@ export async function advanceConversation(
 
   const systemPrompt = buildCoachSystemPrompt(session.idea, session.phase);
   const raw = await callClaude(systemPrompt, buildConversationHistory(sessionWithNewTurn));
-  const response = parseCoachResponse(raw);
+  const response = parseCoachResponse(raw, session.phase);
 
   return {
     userMessage,

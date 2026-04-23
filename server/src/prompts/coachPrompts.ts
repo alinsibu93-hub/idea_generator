@@ -228,11 +228,17 @@ export function buildConversationHistory(session: ChatSession): ClaudeMessage[] 
 
 // ─── Response Parser ──────────────────────────────────────────────────────────
 
-export function parseCoachResponse(raw: string): CoachResponse {
-  console.log('[parseCoachResponse] raw:', raw);
+export function parseCoachResponse(raw: string, currentPhase: ConversationPhase): CoachResponse {
   const match = raw.match(/\{[\s\S]*\}/);
+
+  // Claude occasionally returns plain text instead of JSON — treat it as a
+  // valid message and keep the current phase unchanged.
   if (!match) {
-    throw new AppError(502, 'Coach returned a response that could not be parsed as JSON');
+    const message = raw.trim();
+    if (!message) {
+      throw new AppError(502, 'Coach returned an empty response');
+    }
+    return { message, phase: currentPhase, isComplete: false };
   }
 
   let parsed: Record<string, unknown>;
@@ -248,7 +254,7 @@ export function parseCoachResponse(raw: string): CoachResponse {
 
   return {
     message: parsed.message,
-    phase: (parsed.phase as ConversationPhase) ?? 'WELCOME',
+    phase: (parsed.phase as ConversationPhase) ?? currentPhase,
     isComplete: parsed.isComplete === true,
   };
 }
